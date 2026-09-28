@@ -7,6 +7,7 @@ services:
   - type: web
     name: smartcrm-wagtail
     runtime: python
+    rootDir: smartcrm-wagtail-ai/ai-crm-wagtail
     buildCommand: ./build.sh
     startCommand: python manage.py ensure_admin && gunicorn ai_crm.wsgi:application
     healthCheckPath: /crm/health/
