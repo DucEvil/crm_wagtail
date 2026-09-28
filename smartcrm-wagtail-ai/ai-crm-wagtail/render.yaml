@@ -1,0 +1,35 @@
+databases:
+  - name: smartcrm-db
+    databaseName: smartcrm
+    user: smartcrm
+
+services:
+  - type: web
+    name: smartcrm-wagtail
+    runtime: python
+    buildCommand: ./build.sh
+    startCommand: python manage.py ensure_admin && gunicorn ai_crm.wsgi:application
+    healthCheckPath: /crm/health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DJANGO_SETTINGS_MODULE
+        value: ai_crm.settings.production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: smartcrm-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: AI_PROVIDER
+        value: mock
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

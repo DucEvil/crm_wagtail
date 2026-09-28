@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+<main class="landing">
+  <nav><a class="landing-brand" href="/"><span>S</span> SmartCRM</a><div><a href="#features">Tính năng</a><a href="/admin/">Wagtail Admin</a><a class="landing-button small" href="/crm/">Mở hệ thống</a></div></nav>
+  <section class="landing-hero"><div><span class="landing-pill">✦ Wagtail CMS kết hợp trí tuệ nhân tạo</span><h1>Biến dữ liệu khách hàng thành <em>hành động thông minh.</em></h1><p>Quản lý khách hàng, theo dõi đơn hàng, phân loại bằng AI và tạo email chăm sóc trên một giao diện đơn giản.</p><div class="landing-actions"><a class="landing-button" href="/crm/">Bắt đầu quản lý →</a><a class="landing-link" href="#features">Khám phá tính năng</a></div></div><div class="landing-visual"><div class="mini-window"><div class="mini-top"><i></i><i></i><i></i></div><div class="mini-content"><span class="mini-side"></span><div><span class="mini-title"></span><div class="mini-stats"><i></i><i></i><i></i></div><span class="mini-chart"></span><span class="mini-ai">✦ AI Insight</span></div></div></div></div></section>
+  <section class="landing-features" id="features"><p class="eyebrow">MỘT DỰ ÁN, ĐỦ QUY TRÌNH</p><h2>Những gì SmartCRM có thể làm</h2><div><article><span>01</span><h3>Quản lý tập trung</h3><p>Lưu hồ sơ khách hàng và lịch sử đơn hàng theo mô hình dữ liệu rõ ràng.</p></article><article><span>02</span><h3>Phân tích bằng AI</h3><p>Tự động phân khúc khách hàng từ số đơn, doanh thu và lần mua gần nhất.</p></article><article><span>03</span><h3>Chăm sóc cá nhân</h3><p>Gợi ý email phù hợp từng phân khúc nhưng luôn để người dùng kiểm duyệt.</p></article></div></section>
+</main>
+{% endblock content %}

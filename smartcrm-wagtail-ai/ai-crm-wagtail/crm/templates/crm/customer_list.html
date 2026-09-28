@@ -1,0 +1,8 @@
+{% extends "crm/base.html" %}{% load humanize %}
+{% block title %}Khách hàng | SmartCRM{% endblock %}{% block page_title %}Quản lý khách hàng{% endblock %}
+{% block content %}
+<div class="action-row"><form class="filters" method="get"><input type="search" name="q" value="{{ query }}" placeholder="Tìm tên, email hoặc công ty…"><select name="segment"><option value="">Tất cả phân khúc</option>{% for value,label in segment_choices %}<option value="{{ value }}" {% if segment == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><button class="button secondary">Tìm kiếm</button></form><a class="button primary" href="{% url 'crm:customer_create' %}">＋ Thêm khách hàng</a></div>
+<section class="panel"><div class="panel-head"><div><p class="eyebrow">DANH SÁCH CRM</p><h2>{{ customers|length }} khách hàng</h2></div></div><div class="table-wrap"><table><thead><tr><th>Khách hàng</th><th>Công ty</th><th>Đơn hàng</th><th>Đã chi tiêu</th><th>Phân khúc AI</th><th></th></tr></thead><tbody>
+{% for customer in customers %}<tr><td><strong>{{ customer.full_name }}</strong><small>{{ customer.email }}</small></td><td>{{ customer.company|default:"—" }}</td><td>{{ customer.order_count }}</td><td>{{ customer.spent|default:0|floatformat:0|intcomma }} ₫</td><td><span class="badge segment {{ customer.ai_segment }}">{{ customer.get_ai_segment_display }}</span></td><td><a class="button tiny" href="{% url 'crm:customer_detail' customer.pk %}">Chi tiết</a></td></tr>{% empty %}<tr><td colspan="6" class="empty">Không tìm thấy khách hàng phù hợp.</td></tr>{% endfor %}
+</tbody></table></div></section>
+{% endblock %}

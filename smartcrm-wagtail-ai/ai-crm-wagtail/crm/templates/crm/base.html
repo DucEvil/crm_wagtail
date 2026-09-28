@@ -1,0 +1,47 @@
+{% load static humanize %}
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Hệ thống quản lý khách hàng thông minh xây dựng bằng Wagtail và AI">
+  <title>{% block title %}SmartCRM{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'crm/css/app.css' %}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="{% url 'crm:dashboard' %}">
+        <span class="brand-mark">S</span>
+        <span><strong>SmartCRM</strong><small>Wagtail + AI</small></span>
+      </a>
+      <nav class="nav-list" aria-label="Điều hướng chính">
+        <a class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'crm:dashboard' %}"><span>⌂</span> Tổng quan</a>
+        <a class="nav-item {% if 'customer' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'crm:customer_list' %}"><span>♙</span> Khách hàng</a>
+        <a class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'crm:order_create' %}"><span>▣</span> Tạo đơn hàng</a>
+        {% if request.user.is_staff %}<a class="nav-item" href="/admin/"><span>⚙</span> Wagtail Admin</a>{% endif %}
+      </nav>
+      <div class="sidebar-foot">
+        <span class="status-dot"></span> AI: {{ AI_PROVIDER|default:"Mock / OpenAI" }}
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-button" type="button" aria-label="Mở menu" onclick="document.body.classList.toggle('menu-open')">☰</button>
+        <div><p class="eyebrow">HỆ THỐNG KINH DOANH THÔNG MINH</p><h1>{% block page_title %}SmartCRM{% endblock %}</h1></div>
+        <div class="user-menu"><span class="avatar">{{ request.user.username|first|upper }}</span><span><strong>{{ request.user.get_full_name|default:request.user.username }}</strong><small>Người quản trị</small></span>
+          <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="link-button" type="submit">Đăng xuất</button></form>
+        </div>
+      </header>
+      <section class="content">
+        {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+        {% block content %}{% endblock %}
+      </section>
+    </main>
+  </div>
+  <script src="{% static 'crm/js/app.js' %}"></script>
+</body>
+</html>

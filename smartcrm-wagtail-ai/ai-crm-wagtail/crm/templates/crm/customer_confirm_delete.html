@@ -1,0 +1,2 @@
+{% extends "crm/base.html" %}{% block title %}Xóa khách hàng | SmartCRM{% endblock %}{% block page_title %}Xác nhận xóa{% endblock %}
+{% block content %}<section class="panel confirm-card"><span class="danger-icon">!</span><h2>Xóa {{ customer.full_name }}?</h2><p>Toàn bộ đơn hàng và nhật ký AI liên quan cũng sẽ bị xóa. Thao tác này không thể hoàn tác.</p><form method="post">{% csrf_token %}<a class="button secondary" href="{% url 'crm:customer_detail' customer.pk %}">Quay lại</a><button class="button danger" type="submit">Xác nhận xóa</button></form></section>{% endblock %}
