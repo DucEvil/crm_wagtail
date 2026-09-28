@@ -28,6 +28,7 @@ SECURE_HSTS_PRELOAD = True
 # (e.g. after a Wagtail upgrade).
 # See https://docs.djangoproject.com/en/6.1/ref/contrib/staticfiles/#manifeststaticfilesstorage
 STORAGES["staticfiles"]["BACKEND"] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+WHITENOISE_MANIFEST_STRICT = False
 
 try:
     from .local import *

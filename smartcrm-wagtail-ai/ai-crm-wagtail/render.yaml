@@ -9,7 +9,7 @@ services:
     runtime: python
     rootDir: smartcrm-wagtail-ai/ai-crm-wagtail
     buildCommand: ./build.sh
-    startCommand: python manage.py ensure_admin && gunicorn ai_crm.wsgi:application
+    startCommand: python manage.py ensure_admin && python manage.py update_site && gunicorn ai_crm.wsgi:application
     healthCheckPath: /crm/health/
     envVars:
       - key: PYTHON_VERSION
@@ -34,3 +34,5 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      - key: WAGTAIL_SITE_HOSTNAME
+        value: smartcrm-wagtail.onrender.com
