@@ -202,4 +202,37 @@ def ai_email(request, pk):
 def health(request):
     return HttpResponse("ok", content_type="text/plain")
 
+
+def debug_check(request):
+    """Temporary debug endpoint — remove after fixing."""
+    import traceback
+    from django.template.loader import render_to_string
+    from wagtail.models import Site
+
+    lines = []
+    # Check Wagtail Site
+    try:
+        site = Site.objects.filter(is_default_site=True).first()
+        lines.append(f"Default Site: {site}, hostname={site.hostname if site else 'N/A'}")
+    except Exception:
+        lines.append(f"Site error:\n{traceback.format_exc()}")
+
+    # Check login template render
+    try:
+        from django.contrib.auth.forms import AuthenticationForm
+        form = AuthenticationForm()
+        render_to_string("registration/login.html", {"form": form, "request": request})
+        lines.append("Login template: OK")
+    except Exception:
+        lines.append(f"Login template error:\n{traceback.format_exc()}")
+
+    # Check home page template render
+    try:
+        render_to_string("home/home_page.html", {"page": type("P", (), {"seo_title": "", "title": "Test", "search_description": ""})(), "self": None, "request": request})
+        lines.append("Home template: OK")
+    except Exception:
+        lines.append(f"Home template error:\n{traceback.format_exc()}")
+
+    return HttpResponse("\n\n".join(lines), content_type="text/plain")
+
 # Create your views here.
