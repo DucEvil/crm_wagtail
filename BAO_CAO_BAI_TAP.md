@@ -1,4 +1,4 @@
-# Báo cáo bài tập cá nhân — SmartCRM Wagtail + AI
+# Báo cáo bài tập — SmartCRM Wagtail + AI
 
 ## 1. Mục tiêu
 

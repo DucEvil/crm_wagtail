@@ -1,6 +1,6 @@
 # SmartCRM — Wagtail + AI
 
-SmartCRM là bài tập cá nhân minh họa một hệ thống kinh doanh thông minh: quản lý khách hàng, đơn hàng, phân loại khách hàng bằng AI và gợi ý email chăm sóc. Giao diện người dùng bằng tiếng Việt, responsive và có trang quản trị Wagtail.
+SmartCRM là bài tập minh họa một hệ thống kinh doanh thông minh: quản lý khách hàng, đơn hàng, phân loại khách hàng bằng AI và gợi ý email chăm sóc. Giao diện người dùng bằng tiếng Việt, responsive và có trang quản trị Wagtail.
 
 ## Tính năng
 
@@ -10,7 +10,7 @@ SmartCRM là bài tập cá nhân minh họa một hệ thống kinh doanh thôn
 - AI gợi ý email chăm sóc theo hồ sơ khách hàng.
 - Nhật ký tác vụ AI để kiểm tra kết quả.
 - Wagtail Admin tại `/admin/` và giao diện CRM tại `/crm/`.
-- Chế độ `mock` chạy được ngay, không cần API key; hỗ trợ OpenAI khi cấu hình khóa.
+- Chế độ `mock` chạy được ngay, không cần API key; hỗ trợ Gemini khi cấu hình khóa.
 
 ## 1. Chạy trên máy
 
@@ -84,7 +84,7 @@ crm/
 ├── models.py                  # Customer, Order, AIActionLog
 ├── forms.py                   # Form CRUD
 ├── views.py                   # Dashboard, CRUD, tác vụ AI
-├── services/ai_service.py     # Mock AI và OpenAI
+├── services/ai_service.py     # Mock AI và Gemini
 ├── templates/crm/             # Giao diện responsive
 ├── static/crm/                # CSS và JavaScript
 └── tests/test_crm.py          # Kiểm thử tự động
