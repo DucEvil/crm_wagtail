@@ -53,26 +53,55 @@ def _openai_text(prompt):
     response = client.responses.create(model=settings.OPENAI_MODEL, input=prompt)
     return response.output_text.strip()
 
+def _gemini_text(prompt):
+    from google import genai
+
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
+        raise ValueError("Chưa cấu hình GEMINI_API_KEY trong .env")
+
+    with genai.Client(api_key=api_key) as client:
+        response = client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=prompt,
+        )
+
+    text = (response.text or "").strip()
+    if not text:
+        raise ValueError("Gemini không trả về nội dung")
+
+    return text
+
+def _ai_text(prompt):
+    if settings.AI_PROVIDER == "gemini":
+        return _gemini_text(prompt)
+
+    if settings.AI_PROVIDER == "openai":
+        if not settings.OPENAI_API_KEY:
+            raise ValueError("Chưa cấu hình OPENAI_API_KEY")
+        return _openai_text(prompt)
+
+    raise ValueError("AI_PROVIDER không hợp lệ")
 
 def classify_customer(customer):
     data = customer_metrics(customer)
-    if settings.AI_PROVIDER != "openai" or not settings.OPENAI_API_KEY:
+    if settings.AI_PROVIDER == "mock":
         return _mock_classification(data), "mock"
 
     prompt = f"""Bạn là chuyên viên CRM. Phân loại khách hàng từ dữ liệu tổng hợp sau:
 {json.dumps(data, ensure_ascii=False)}
 Chỉ trả về JSON hợp lệ gồm segment (một trong new, potential, vip, at_risk), reason và recommended_action. Không thêm markdown."""
-    raw = _openai_text(prompt)
+    raw = _ai_text(prompt)
     clean = raw.removeprefix("```json").removesuffix("```").strip()
     result = json.loads(clean)
     if result.get("segment") not in {"new", "potential", "vip", "at_risk"}:
         raise ValueError("AI trả về phân khúc không hợp lệ")
-    return result, "openai"
+    return result, settings.AI_PROVIDER
 
 
 def suggest_email(customer):
     data = customer_metrics(customer)
-    if settings.AI_PROVIDER != "openai" or not settings.OPENAI_API_KEY:
+    if settings.AI_PROVIDER == "mock":
         subject_by_segment = {
             "vip": "Ưu đãi đặc biệt dành riêng cho bạn",
             "potential": "Gợi ý phù hợp dành cho bạn",
@@ -96,4 +125,4 @@ Dữ liệu tổng hợp: {json.dumps(data, ensure_ascii=False)}
 Phân khúc: {customer.get_ai_segment_display()}
 Nhận định: {customer.ai_summary}
 Chỉ trả về nội dung email hoàn chỉnh."""
-    return _openai_text(prompt), "openai"
+    return _ai_text(prompt), settings.AI_PROVIDER
