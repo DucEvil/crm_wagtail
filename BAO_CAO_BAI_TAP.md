@@ -10,7 +10,7 @@ Xây dựng một ứng dụng CRM nhỏ bằng Wagtail giúp doanh nghiệp lư
 |---|---|---|
 | Thiết lập Python và Wagtail | Django 6.1.1, Wagtail 8.0, cấu trúc project chuẩn | `python manage.py check` |
 | Custom model | `Customer`, `Order`, `AIActionLog` và migration | Wagtail Admin → Snippets |
-| Tích hợp AI API | OpenAI Responses API; có mock fallback | Nút “Phân loại bằng AI” và “Tạo email gợi ý” |
+| Tích hợp AI API | Gemini API; có mock fallback | Nút “Phân loại bằng AI” và “Tạo email gợi ý” |
 | Frontend tương tác | Dashboard, tìm kiếm/lọc, CRUD, responsive | Truy cập `/crm/` trên desktop/mobile |
 | Kiểm thử và triển khai | 8 test tự động, `render.yaml`, `build.sh` | `python manage.py test crm`; deploy Blueprint trên Render |
 
@@ -32,7 +32,7 @@ Xây dựng một ứng dụng CRM nhỏ bằng Wagtail giúp doanh nghiệp lư
 - `vip`: doanh thu từ 20 triệu đồng hoặc ít nhất 5 đơn hoàn tất.
 - `at_risk`: từng mua nhưng quá 120 ngày chưa có đơn mới.
 
-Với OpenAI, ứng dụng yêu cầu JSON có cấu trúc và kiểm tra lại giá trị phân khúc. Nếu chưa có API key, mock AI vẫn thực hiện cùng luồng giao diện để phục vụ demo.
+Với Gemini, ứng dụng yêu cầu JSON có cấu trúc và kiểm tra lại giá trị phân khúc. Nếu chưa có API key, mock AI vẫn thực hiện cùng luồng giao diện để phục vụ demo.
 
 ## 5. An toàn và giới hạn
 

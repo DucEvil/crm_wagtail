@@ -53,9 +53,7 @@ AI_PROVIDER=mock
 Để dùng OpenAI thật, đặt các biến môi trường (không commit khóa vào GitHub):
 
 ```env
-AI_PROVIDER=openai
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-5-mini
+
 ```
 
 Dịch vụ chỉ gửi dữ liệu tổng hợp cần thiết như số đơn, tổng chi tiêu, lần mua gần nhất; không gửi email và số điện thoại trong prompt.
@@ -78,20 +76,6 @@ python manage.py test crm
 
 Bộ 9 test kiểm tra model, đăng nhập, CRUD khách hàng, phân loại AI, gợi ý email và nhật ký AI.
 
-## 5. Triển khai Render
-
-1. Đẩy thư mục dự án này lên một repository GitHub.
-2. Vào Render → **New +** → **Blueprint** → kết nối repository.
-3. Render đọc `render.yaml`, tạo Web Service cùng PostgreSQL và hỏi ba giá trị `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`. Đây là tài khoản đăng nhập CRM đầu tiên.
-4. Chờ deploy thành công. Để thêm dữ liệu mẫu, mở tab **Shell** của Web Service và chạy:
-
-```bash
-python manage.py seed_demo
-```
-
-5. Nếu dùng OpenAI thật, thêm `OPENAI_API_KEY` trong **Environment**, đổi `AI_PROVIDER` thành `openai`, rồi redeploy.
-
-Lưu ý: nếu đổi tên miền riêng, cập nhật `ALLOWED_HOSTS` và `CSRF_TRUSTED_ORIGINS` trong Environment.
 
 ## Cấu trúc chính
 
