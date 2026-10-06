@@ -55,3 +55,7 @@ Với Gemini, ứng dụng yêu cầu JSON có cấu trúc và kiểm tra lại 
 ## 7. Kết luận
 
 Dự án đáp ứng đủ năm nhóm yêu cầu của bài tập và có thể trình bày độc lập. Điểm mở rộng trong tương lai là biểu đồ theo thời gian, phân quyền nhân viên, nhập dữ liệu CSV và gửi email sau bước phê duyệt.
+
+## 8. Nhiệm vụ tiếp theo — Apache Superset
+
+Hệ thống đã được mở rộng bằng stack `docker-compose.analytics.yml`: Wagtail và Superset kết nối cùng nguồn PostgreSQL, nhưng Superset chỉ được đọc schema `analytics`. Ba view nghiệp vụ chuẩn hóa dữ liệu khách hàng, đơn hàng và doanh thu. Bootstrap tự động tạo ba dataset, năm chart và dashboard tổng hợp; trang `/crm/analytics/` hiển thị trạng thái và liên kết truy cập. Cách chạy, đối soát số liệu và các biện pháp bảo mật được mô tả trong `SUPERSET_INTEGRATION.md`.

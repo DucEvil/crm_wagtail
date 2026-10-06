@@ -1,0 +1,134 @@
+name: smartcrm-analytics
+
+x-superset-image: &superset-image
+  image: smartcrm-superset:6.0.0
+  build:
+    context: ./docker/superset
+    dockerfile: Dockerfile
+
+services:
+  crm-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-smartcrm}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-postgres_admin_dev_password}
+      APP_DB_USER: ${APP_DB_USER:-smartcrm_app}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:-smartcrm_dev_password}
+      ANALYTICS_DB_USER: ${ANALYTICS_DB_USER:-smartcrm_analytics}
+      ANALYTICS_DB_PASSWORD: ${ANALYTICS_DB_PASSWORD:-analytics_dev_password}
+      SUPERSET_META_DB: ${SUPERSET_META_DB:-superset}
+      SUPERSET_META_USER: ${SUPERSET_META_USER:-superset_meta}
+      SUPERSET_META_PASSWORD: ${SUPERSET_META_PASSWORD:-superset_meta_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - crm_postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-analytics.sh:/docker-entrypoint-initdb.d/10-init-analytics.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  crm-init:
+    build: .
+    env_file: &crm-env-file
+      - path: ./.env
+        required: false
+    environment: &crm-environment
+      DJANGO_SETTINGS_MODULE: ai_crm.settings.dev
+      DATABASE_URL: postgresql://${APP_DB_USER:-smartcrm_app}:${APP_DB_PASSWORD:-smartcrm_dev_password}@crm-db:5432/${POSTGRES_DB:-smartcrm}
+      ANALYTICS_DB_ROLE: ${ANALYTICS_DB_USER:-smartcrm_analytics}
+      SUPERSET_URL: ${SUPERSET_PUBLIC_URL:-http://localhost:8088}
+      ADMIN_USERNAME: ${CRM_ADMIN_USERNAME:-admin}
+      ADMIN_EMAIL: ${CRM_ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${CRM_ADMIN_PASSWORD:-admin}
+    depends_on:
+      crm-db:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        python manage.py migrate --noinput &&
+        python manage.py setup_analytics &&
+        python manage.py seed_demo &&
+        python manage.py ensure_admin
+    restart: "no"
+
+  wagtail:
+    build: .
+    env_file: *crm-env-file
+    environment: *crm-environment
+    depends_on:
+      crm-init:
+        condition: service_completed_successfully
+    command: ["gunicorn", "ai_crm.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--timeout", "60"]
+    ports:
+      - "${CRM_PORT:-8000}:8000"
+    restart: unless-stopped
+
+  superset-init:
+    <<: *superset-image
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - >-
+        superset db upgrade &&
+        superset fab list-users > /tmp/superset-users.txt &&
+        (grep -Fq "$${SUPERSET_ADMIN_USERNAME}" /tmp/superset-users.txt ||
+        superset fab create-admin --username "$${SUPERSET_ADMIN_USERNAME}" --firstname SmartCRM --lastname Admin --email "$${SUPERSET_ADMIN_EMAIL}" --password "$${SUPERSET_ADMIN_PASSWORD}") &&
+        superset init
+    environment: &superset-environment
+      SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-dev-only-change-this-64-character-secret-key-before-production-use}
+      SUPERSET_METADATA_URI: postgresql+psycopg2://${SUPERSET_META_USER:-superset_meta}:${SUPERSET_META_PASSWORD:-superset_meta_dev_password}@crm-db:5432/${SUPERSET_META_DB:-superset}
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL:-admin@example.com}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:-admin}
+    volumes:
+      - ./docker/superset:/app/pythonpath:ro
+    depends_on:
+      crm-db:
+        condition: service_healthy
+    restart: "no"
+
+  superset:
+    <<: *superset-image
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - gunicorn --bind 0.0.0.0:8088 --workers 2 --worker-class gthread --threads 20 --timeout 120 "superset.app:create_app()"
+    environment: *superset-environment
+    volumes:
+      - ./docker/superset:/app/pythonpath:ro
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    ports:
+      - "${SUPERSET_PORT:-8088}:8088"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      retries: 30
+    restart: unless-stopped
+
+  superset-bootstrap:
+    <<: *superset-image
+    entrypoint: ["python", "/app/pythonpath/bootstrap_superset.py"]
+    command: []
+    environment:
+      <<: *superset-environment
+      SUPERSET_INTERNAL_URL: http://superset:8088
+      SMARTCRM_ANALYTICS_URI: postgresql+psycopg2://${ANALYTICS_DB_USER:-smartcrm_analytics}:${ANALYTICS_DB_PASSWORD:-analytics_dev_password}@crm-db:5432/${POSTGRES_DB:-smartcrm}
+    volumes:
+      - ./docker/superset:/app/pythonpath:ro
+    depends_on:
+      crm-init:
+        condition: service_completed_successfully
+      superset:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  crm_postgres_data:

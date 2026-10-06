@@ -10,7 +10,41 @@ SmartCRM là bài tập minh họa một hệ thống kinh doanh thông minh: qu
 - AI gợi ý email chăm sóc theo hồ sơ khách hàng.
 - Nhật ký tác vụ AI để kiểm tra kết quả.
 - Wagtail Admin tại `/admin/` và giao diện CRM tại `/crm/`.
+- Apache Superset tại cổng `8088`, dùng PostgreSQL role chỉ-đọc và dashboard mẫu tự khởi tạo.
 - Chế độ `mock` chạy được ngay, không cần API key; hỗ trợ Gemini khi cấu hình khóa.
+
+## Chạy đầy đủ CRM + Apache Superset bằng Docker
+
+Đây là cách chạy khuyến nghị cho bài tích hợp phân tích dữ liệu. Cần Docker Desktop với lệnh `docker compose`.
+
+```powershell
+Copy-Item .env.analytics.example .env.analytics
+# Thay các giá trị change-me trong .env.analytics trước khi dùng ngoài máy cá nhân.
+docker compose --env-file .env.analytics -f docker-compose.analytics.yml up --build
+```
+
+Sau khi các service khỏe mạnh:
+
+- SmartCRM: `http://localhost:8000/crm/`
+- Apache Superset: `http://localhost:8088/`
+- Dashboard mẫu: `http://localhost:8088/superset/dashboard/smartcrm-overview/`
+
+Stack tự động migrate Wagtail, tạo dữ liệu mẫu, tạo ba analytics view, tài khoản chỉ-đọc, ba dataset và năm chart. Tài khoản đăng nhập lấy từ `CRM_ADMIN_*` và `SUPERSET_ADMIN_*` trong `.env.analytics`.
+
+Cấu hình AI (`AI_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_MODEL` hoặc các biến OpenAI) được CRM đọc trực tiếp từ `.env`. Sau khi sửa `.env`, áp dụng lại bằng `docker compose --env-file .env.analytics -f docker-compose.analytics.yml up -d --no-deps wagtail`. Không cần dựng lại image để thay cấu hình AI.
+
+```powershell
+# Xem trạng thái
+docker compose --env-file .env.analytics -f docker-compose.analytics.yml ps
+
+# Chạy lại bước tạo dashboard nếu cần
+docker compose --env-file .env.analytics -f docker-compose.analytics.yml run --rm superset-bootstrap
+
+# Dừng stack nhưng giữ dữ liệu
+docker compose --env-file .env.analytics -f docker-compose.analytics.yml down
+```
+
+Không dùng `down -v` nếu muốn giữ database. Xem [SUPERSET_INTEGRATION.md](SUPERSET_INTEGRATION.md) để biết mô hình dữ liệu, SQLAlchemy URI, cách kiểm tra số liệu và lưu ý production.
 
 ## 1. Chạy trên máy
 
@@ -74,7 +108,7 @@ python manage.py check
 python manage.py test crm
 ```
 
-Bộ 9 test kiểm tra model, đăng nhập, CRUD khách hàng, phân loại AI, gợi ý email và nhật ký AI.
+Bộ 12 test kiểm tra model, đăng nhập, CRUD khách hàng, phân loại AI, gợi ý email, nhật ký AI, lệnh analytics và trang tích hợp Superset.
 
 
 ## Cấu trúc chính

@@ -22,6 +22,7 @@
         <a class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'crm:dashboard' %}"><span>⌂</span> Tổng quan</a>
         <a class="nav-item {% if 'customer' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'crm:customer_list' %}"><span>♙</span> Khách hàng</a>
         <a class="nav-item {% if 'order' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'crm:order_create' %}"><span>▣</span> Tạo đơn hàng</a>
+        <a class="nav-item {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}" href="{% url 'crm:analytics' %}"><span>◫</span> Apache Superset</a>
         {% if request.user.is_staff %}<a class="nav-item" href="/admin/"><span>⚙</span> Wagtail Admin</a>{% endif %}
       </nav>
       <div class="sidebar-foot">

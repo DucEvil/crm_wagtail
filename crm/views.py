@@ -1,7 +1,9 @@
 import json
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 from django.db.models import Count, Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -35,6 +37,24 @@ def dashboard(request):
         "unclassified_count": customers.filter(ai_segment=Customer.Segment.UNCLASSIFIED).count(),
     }
     return render(request, "crm/dashboard.html", context)
+
+
+@login_required
+def analytics(request):
+    """Explain and link the read-only Superset analytics workspace."""
+    return render(
+        request,
+        "crm/analytics.html",
+        {
+            "superset_url": settings.SUPERSET_URL,
+            "uses_postgresql": connection.vendor == "postgresql",
+            "dataset_names": [
+                "analytics.customer_360",
+                "analytics.sales_daily",
+                "analytics.order_detail",
+            ],
+        },
+    )
 
 
 @login_required

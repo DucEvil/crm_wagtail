@@ -1,4 +1,5 @@
 .env
+.env.analytics
 .venv/
 venv/
 __pycache__/

@@ -1,0 +1,52 @@
+{% extends "crm/base.html" %}
+{% block title %}Phân tích dữ liệu | SmartCRM{% endblock %}
+{% block page_title %}Phân tích dữ liệu với Superset{% endblock %}
+{% block content %}
+<div class="hero-card analytics-hero">
+  <div>
+    <span class="badge ai">◫ APACHE SUPERSET</span>
+    <h2>Dashboard kinh doanh từ dữ liệu CRM theo thời gian thực.</h2>
+    <p>Superset đọc các view phân tích bằng tài khoản PostgreSQL chỉ-đọc. Dữ liệu gốc, quyền ghi và thông tin đăng nhập CRM không được chia sẻ.</p>
+  </div>
+  <a class="button light" href="{{ superset_url }}/superset/dashboard/smartcrm-overview/" target="_blank" rel="noopener">Mở dashboard →</a>
+</div>
+
+<div class="analytics-grid">
+  <section class="panel">
+    <div class="panel-head"><div><p class="eyebrow">TRẠNG THÁI</p><h2>Kết nối dữ liệu</h2></div></div>
+    <div class="connection-status {% if uses_postgresql %}ready{% else %}local{% endif %}">
+      <span></span>
+      <div>
+        <strong>{% if uses_postgresql %}PostgreSQL sẵn sàng{% else %}Đang dùng SQLite cục bộ{% endif %}</strong>
+        <p>{% if uses_postgresql %}Các view analytics có thể được Superset truy vấn.{% else %}Chạy stack Docker analytics để bật kết nối Superset đầy đủ.{% endif %}</p>
+      </div>
+    </div>
+    <dl class="analytics-details">
+      <div><dt>Superset</dt><dd>{{ superset_url }}</dd></div>
+      <div><dt>Quyền dữ liệu</dt><dd>SELECT-only</dd></div>
+      <div><dt>Làm mới</dt><dd>Truy vấn trực tiếp</dd></div>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><div><p class="eyebrow">DATASETS</p><h2>Nguồn dữ liệu nghiệp vụ</h2></div></div>
+    <div class="dataset-list">
+      {% for dataset in dataset_names %}
+      <div><span>✓</span><code>{{ dataset }}</code></div>
+      {% endfor %}
+    </div>
+    <p class="dataset-note">Các view chuẩn hóa nhãn tiếng Việt, doanh thu hoàn tất và dữ liệu khách hàng tổng hợp để biểu đồ luôn dùng cùng một định nghĩa.</p>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-head"><div><p class="eyebrow">DASHBOARD MẪU</p><h2>SmartCRM — Tổng quan kinh doanh</h2><p>Dashboard được tạo tự động khi khởi động Docker lần đầu.</p></div></div>
+  <div class="chart-preview-grid">
+    <article><span class="preview-icon violet">₫</span><strong>Tổng doanh thu</strong><small>Chỉ tính đơn hoàn thành</small></article>
+    <article><span class="preview-icon blue">♙</span><strong>Tổng khách hàng</strong><small>Quy mô tệp khách hàng</small></article>
+    <article><span class="preview-icon green">⌁</span><strong>Xu hướng doanh thu</strong><small>Theo ngày đặt hàng</small></article>
+    <article><span class="preview-icon amber">◔</span><strong>Phân khúc AI</strong><small>Tỷ trọng từng nhóm</small></article>
+    <article><span class="preview-icon rose">▤</span><strong>Khách hàng hàng đầu</strong><small>Xếp hạng theo doanh thu</small></article>
+  </div>
+</section>
+{% endblock %}

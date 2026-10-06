@@ -1,7 +1,9 @@
 from datetime import timedelta
 from decimal import Decimal
+from io import StringIO
 
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -33,6 +35,11 @@ class ModelTests(CRMBaseTest):
 
     def test_customer_string(self):
         self.assertEqual(str(self.customer), "Nguyễn An")
+
+    def test_setup_analytics_skips_non_postgresql_database(self):
+        output = StringIO()
+        call_command("setup_analytics", stdout=output)
+        self.assertIn("yêu cầu PostgreSQL", output.getvalue())
 
 
 @override_settings(AI_PROVIDER="mock", OPENAI_API_KEY="")
@@ -78,6 +85,18 @@ class ViewTests(CRMBaseTest):
         response = self.client.get(reverse("crm:dashboard"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Tổng quan kinh doanh")
+
+    def test_analytics_requires_login(self):
+        response = self.client.get(reverse("crm:analytics"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response.url)
+
+    def test_analytics_page_for_logged_in_user(self):
+        self.client.login(username="tester", password="safe-test-password")
+        response = self.client.get(reverse("crm:analytics"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Phân tích dữ liệu với Superset")
+        self.assertContains(response, "analytics.customer_360")
 
     def test_create_customer(self):
         self.client.login(username="tester", password="safe-test-password")

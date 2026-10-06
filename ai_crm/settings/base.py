@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "django.contrib.postgres",
 ]
 
 MIDDLEWARE = [
@@ -177,6 +178,11 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5-mini")
+
+# Apache Superset analytics integration. The URL is shown to authenticated CRM
+# users; database credentials stay server-side in Docker/Superset.
+SUPERSET_URL = os.getenv("SUPERSET_URL", "http://localhost:8088").rstrip("/")
+ANALYTICS_DB_ROLE = os.getenv("ANALYTICS_DB_ROLE", "smartcrm_analytics")
 
 # Search
 # https://docs.wagtail.org/en/stable/topics/search/backends.html
